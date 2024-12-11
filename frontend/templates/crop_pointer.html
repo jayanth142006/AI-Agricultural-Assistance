@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Prediction Based on Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border: 1px solid black;
+        }
+
+        #probabilities {
+            margin-top: 20px;
+        }
+
+        .crop-probability {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Crop Prediction Based on Location</h1>
+
+    <div id="map"></div>
+    <form id="cropForm">
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" min="2000" max="2030" required><br><br>
+
+        <label for="season">Season:</label>
+        <select id="season" name="season" required>
+            <option value="Kharif">Kharif</option>
+            <option value="Rabi">Rabi</option>
+            <option value="Whole Year">Whole Year</option>
+        </select><br><br>
+
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
+
+        <button type="button" onclick="predictCrop()">Predict Crop</button>
+    </form>
+    
+    <p id="result"></p>
+    <div id="probabilities"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map, marker;
+
+        function initMap() {
+            // Initialize the map centered on Tamil Nadu
+            map = L.map('map').setView([10.75, 79.0], 7); // Centered at Tamil Nadu
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Define an irregular polygon boundary
+            const irregularPolygon = [
+                [12.7, 77.5],  // Upper-middle point
+                [13.2, 80.5],  // Lower-right point
+                [8.2, 78.0],   // Bottom-left point
+                [8.2, 77.3],   // Bottom-middle point
+                [11.0, 76.8]   // Close the polygon (back to start point)
+            ];
+
+            // Add a polygon for the irregular boundary (red)
+            L.polygon(irregularPolygon, { color: 'red', weight: 2 }).addTo(map);
+
+            // Add a draggable marker
+            marker = L.marker([10.75, 79.0], { draggable: true }).addTo(map);
+
+            // Update the form input fields with the marker's position when dragged
+            marker.on('dragend', function () {
+                const position = marker.getLatLng();
+                document.getElementById("latitude").value = position.lat;
+                document.getElementById("longitude").value = position.lng;
+            });
+        }
+
+        // Function to handle crop prediction
+        async function predictCrop() {
+            const formData = {
+                latitude: parseFloat(document.getElementById("latitude").value),
+                longitude: parseFloat(document.getElementById("longitude").value),
+                year: parseInt(document.getElementById("year").value),
+                season: document.getElementById("season").value,
+            };
+
+            const response = await fetch("/api/crop_pointer/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+            if (result.predicted_crop) {
+                document.getElementById("result").innerText =
+                    "Predicted Crop: " + result.predicted_crop;
+
+                // Display probabilities for all crops
+                const probabilitiesDiv = document.getElementById("probabilities");
+                probabilitiesDiv.innerHTML = "<h3>Crop Probabilities:</h3>";
+
+                for (const [crop, prob] of Object.entries(result.crop_probabilities)) {
+                    const probDiv = document.createElement("div");
+                    probDiv.classList.add("crop-probability");
+                    probDiv.innerText = `${crop}: ${prob.toFixed(2)}`;
+                    probabilitiesDiv.appendChild(probDiv);
+                }
+            } else {
+                document.getElementById("result").innerText = "Error: " + result.error;
+            }
+        }
+
+        // Initialize the map
+        initMap();
+    </script>
+</body>
+</html>
+
+
+
+

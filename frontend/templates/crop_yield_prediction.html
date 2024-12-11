@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Prediction</title>
+</head>
+<body>
+    <h1>Crop Yield Prediction</h1>
+    <form id="yieldForm">
+        <label for="crop">Crop:</label>
+        <input type="text" id="crop" name="crop" required><br><br>
+
+        <label for="state">State:</label>
+        <input type="text" id="state" name="state" required><br><br>
+
+        <label for="annual_rainfall">Annual Rainfall (mm):</label>
+        <input type="number" step="0.1" id="annual_rainfall" name="annual_rainfall" required><br><br>
+
+        <label for="fertilizer">Fertilizer Usage:</label>
+        <input type="number" step="0.1" id="fertilizer" name="fertilizer" required><br><br>
+
+        <label for="pesticide">Pesticide Usage:</label>
+        <input type="number" step="0.1" id="pesticide" name="pesticide" required><br><br>
+
+        <button type="button" onclick="predictYield()">Submit</button>
+    </form>
+    <p id="result"></p>
+
+    <script>
+        async function predictYield() {
+            const formData = {
+                crop: document.getElementById("crop").value,
+                state: document.getElementById("state").value,
+                annual_rainfall: document.getElementById("annual_rainfall").value,
+                fertilizer: document.getElementById("fertilizer").value,
+                pesticide: document.getElementById("pesticide").value,
+            };
+
+            const response = await fetch("/api/crop_yield_prediction/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+            if (result.predicted_yield) {
+                document.getElementById("result").innerText =
+                    "Predicted Yield: " + result.predicted_yield*1000 + " Ton";
+            } else {
+                document.getElementById("result").innerText = "Error: " + result.error;
+            }
+        }
+    </script>
+</body>
+</html>
+

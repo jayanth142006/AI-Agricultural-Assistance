@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation</title>
+</head>
+<body>
+    <h1>Crop Recommendation</h1>
+    <form id="cropForm">
+        <label for="N">Nitrogen (N):</label>
+        <input type="number" id="N" name="N" required><br><br>
+
+        <label for="P">Phosphorous (P):</label>
+        <input type="number" id="P" name="P" required><br><br>
+
+        <label for="K">Potassium (K):</label>
+        <input type="number" id="K" name="K" required><br><br>
+
+        <label for="state">State:</label>
+        <input type="text" id="state" name="state" required><br><br>
+
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" required><br><br>
+
+        <label for="ph">pH Level:</label>
+        <input type="number" step="0.1" id="ph" name="ph" required><br><br>
+
+        <label for="rainfall">Rainfall (mm):</label>
+        <input type="number" id="rainfall" name="rainfall" required><br><br>
+
+        <button type="button" onclick="recommendCrop()">Submit</button>
+    </form>
+
+    <h3>Weather Data:</h3>
+    <p id="weatherData"></p>
+
+    <h3>Recommended Crop:</h3>
+    <p id="result"></p>
+
+    <script>
+        async function recommendCrop() {
+            const formData = {
+                N: document.getElementById("N").value,
+                P: document.getElementById("P").value,
+                K: document.getElementById("K").value,
+                state: document.getElementById("state").value,
+                city: document.getElementById("city").value,
+                ph: document.getElementById("ph").value,
+                rainfall: document.getElementById("rainfall").value,
+            };
+
+            const response = await fetch("/api/crop_recommendation/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+            if (result.recommended_crop) {
+                document.getElementById("result").innerText =
+                    "Recommended Crop: " + result.recommended_crop;
+                document.getElementById("weatherData").innerText =
+                    "Temperature: " + result.temperature + "°C, Humidity: " + result.humidity + "%";
+            } else {
+                document.getElementById("result").innerText = "Error: " + result.error;
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
