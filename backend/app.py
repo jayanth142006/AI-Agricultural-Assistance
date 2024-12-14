@@ -4,7 +4,8 @@ from routes.crop_yield_prediction import crop_yield_prediction_bp
 from routes.fertilizer_recommendation import fertilizer_recommendation_bp  # Import the fertilizer recommendation blueprint
 from routes.crop_pointer import crop_pointer_bp
 from routes.crop_image_classification import crop_image_classification_bp  # Import the image classification blueprint
-
+from routes.soil_image_classification import soil_image_classification_bp
+from routes.yr_yield_prediction import yr_yield_prediction_bp
 # Initialize the Flask app
 app = Flask(__name__, template_folder="../frontend/templates")  # Ensure the correct path
 
@@ -14,7 +15,8 @@ app.register_blueprint(crop_yield_prediction_bp, url_prefix="/api/crop_yield_pre
 app.register_blueprint(fertilizer_recommendation_bp, url_prefix="/api/fertilizer_recommendation")
 app.register_blueprint(crop_pointer_bp, url_prefix="/api/crop_pointer")
 app.register_blueprint(crop_image_classification_bp, url_prefix="/api/crop_image_classification")  # Register the new blueprint
-
+app.register_blueprint(soil_image_classification_bp, url_prefix="/api/soil_image_classification")
+app.register_blueprint(yr_yield_prediction_bp, url_prefix="/api/yr_yield_prediction")
 # Home route (index page)
 @app.route("/")
 def home():
@@ -42,10 +44,19 @@ def crop_pointer_page():
 # Route for Crop Image Classification Page
 @app.route("/crop-image-classification")
 def crop_image_classification_page():
-    return render_template("crop_image_classification.html")  # Ensure crop_image_classification.html exists in frontend/templates
+    return render_template("crop_image_classification.html")
+
+@app.route("/soil-image-classification")
+def soil_image_classification_page():
+    return render_template("soil_image_classification.html")  # Ensure crop_image_classification.html exists in frontend/templates
+
+@app.route("/yr-yield-prediction")
+def yr_yield_prediction_page():
+    return render_template("yr_yield_prediction.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
