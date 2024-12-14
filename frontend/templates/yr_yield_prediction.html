@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Year-wise Yield Prediction</title>
+</head>
+<body>
+    <h1>Year-wise Yield Prediction in India</h1>
+    <form id="predictionForm">
+        <label for="crop_name">Crop Name:</label>
+        <input type="text" id="crop_name" name="crop_name" required><br><br>
+
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" required><br><br>
+
+        <button type="button" onclick="predictYield()">Predict Yield</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        async function predictYield() {
+            const cropName = document.getElementById("crop_name").value;
+            const year = document.getElementById("year").value;
+
+            const formData = {
+                crop_name: cropName,
+                year: parseInt(year),
+            };
+
+            try {
+                const response = await fetch("/api/yr_yield_prediction/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const result = await response.json();
+                if (result.predicted_yield !== undefined) {
+                    document.getElementById("result").innerHTML = `
+                        <h3>Prediction Result:</h3>
+                        <p>Crop: ${result.crop_name}</p>
+                        <p>Year: ${result.year}</p>
+                        <p>Predicted Yield: ${result.predicted_yield} tons/acre</p>
+                    `;
+                } else {
+                    document.getElementById("result").innerHTML = `<p>Error: ${result.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById("result").innerHTML = "<p>Error: Unable to fetch prediction.</p>";
+                console.error("Error:", error);
+            }
+        }
+    </script>
+</body>
+</html>

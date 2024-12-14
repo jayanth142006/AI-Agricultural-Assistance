@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil Image Classification</title>
+    <style>
+        #upload-container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            display: inline-block;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Soil Image Classification</h1>
+
+    <div id="upload-container">
+        <h3>Upload an Image of the Soil</h3>
+        <form id="imageForm" enctype="multipart/form-data">
+            <input type="file" id="imageFile" name="file" accept="image/*" required><br><br>
+            <button type="submit">Upload and Predict</button>
+        </form>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById("imageForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            // Get the uploaded file
+            const formData = new FormData();
+            const fileInput = document.getElementById("imageFile");
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                // Send the image to the server for prediction
+                const response = await fetch("/api/soil_image_classification/predict", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    document.getElementById("result").innerText = "Error: " + result.error;
+                } else {
+                    document.getElementById("result").innerHTML = `
+                        <h3>Prediction Result:</h3>
+                        <p>Predicted Soil: ${result.predicted_class}</p>
+                        <p>Probability: ${result.predicted_probability*100}%</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById("result").innerText = "Error: " + error;
+            }
+        });
+    </script>
+</body>
+</html>
