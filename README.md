@@ -1,4 +1,4 @@
-# Agricultural Machine Learning Project
+# AI Agricultural Assistance
 
 Built a machine learning-powered web application that brings together multiple tools to assist farmers and agronomists with data-driven agricultural decisions.
 
