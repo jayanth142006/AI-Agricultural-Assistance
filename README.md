@@ -1,5 +1,7 @@
 # AI Agricultural Assistance
 
+https://github.com/user-attachments/assets/08e08df1-ba5a-4c0e-8fb9-20ac397a2241
+
 Built a machine learning-powered web application that brings together multiple tools to assist farmers and agronomists with data-driven agricultural decisions.
 
 🎯 The system includes five major features:
